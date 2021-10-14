@@ -1,0 +1,45 @@
+﻿@{
+    ViewData["Title"] = "Solicitações";
+}
+
+@model List<AppEPI.Entidades.Solicitacao>;
+
+<h2>Solicitações</h2>
+<hr />
+
+<table class="table table-bordered">
+    <thead>
+        <tr style="background-color:#f6f6f6">
+            <th>Código</th>
+            <th>Data</th>
+            <th>Colaborador</th>
+            <th>Motivo</th>
+            <th>Posto de Trabalho</th>
+        </tr>
+    </thead>
+    @foreach (var item in Model)
+    {
+        <tr onclick="Editar(@item.Codigo)" style="cursor:pointer">
+            <td>@item.Codigo</td>
+            <td>@item.Data</td>
+            <td>@item.Nome</td>
+            <td>@item.PostoDeTrabalho</td>
+        </tr>
+    }
+    <tbody>
+    </tbody>
+</table>
+<br />
+<button type="button" class="btn btn-block btn-primary" onclick="Cadastrar()">Registrar Solicitação</button>
+
+
+<script>
+    function Cadastrar() {
+        window.location = window.origin + "\\solicitacoes\\cadastro";
+    }
+
+    function Editar(Codigo) {
+        window.location = window.origin + "\\solicitacoes\\cadastro\\" + Codigo;
+
+    }
+</script>

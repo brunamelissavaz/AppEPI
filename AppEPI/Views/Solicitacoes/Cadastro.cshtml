@@ -1,0 +1,196 @@
+﻿@{
+    ViewData["Title"] = "Solicitaçao";
+}
+
+<h2>Solicitaçao</h2>
+<hr />
+
+
+@model AppEPI.Models.SolicitacaoViewModel;
+@{
+    var disabled = (Model.Codigo == null) ? "disabled" : string.Empty;
+}
+
+<form asp-controller="Solicitacoes" asp-action="Cadastro" method="post">
+    <div class="container">
+        <h2>Informações do Solicitante</h2>
+        <input type="hidden" asp-for="Codigo" value="@Model.Codigo" />
+        <div class="row">
+            <div class="form-group">
+                <div class="col-lg-12">
+                    <label>Data</label>
+                    <input type="date" asp-for="Data" value="@Model.Data" class="form-control" />
+                    <span asp-validation-for="Data" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-lg-12">
+                    <label>Número Matricula</label>
+                    <input type="Text" asp-for="Matricula" value="@Model.Matricula" class="form-control" />
+                    <span asp-validation-for="Matricula" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-lg-12">
+                    <label>Nome Completo</label>
+                    <input type="Text" asp-for="Nome" value="@Model.Nome" class="form-control" />
+                    <span asp-validation-for="Nome" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-lg-12">
+                    <label>Telefone / Celular</label>
+                    <input type="Text" asp-for="Celular" value="@Model.Celular" class="form-control" />
+                    <span asp-validation-for="Celular" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+
+
+            <div class="form-group">
+                <div class="col-lg-12">
+                    <label>Posto de Trabalho</label>
+                    <input type="Text" asp-for="PostoDeTrabalho" value="@Model.PostoDeTrabalho" class="form-control" />
+                    <span asp-validation-for="Nome" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-lg-12">
+                    <label>Estado</label>
+                    <input type="hidden" asp-for="ListaUFs" value="@Model.ListaUFs" class="form-control" />
+                    <select asp-for="CodigoUF" asp-items="@Model.ListaUFs" class="form-control" input-lg></select>
+                    <span asp-validation-for="CodigoUF" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <h2>Informações do Equipamento</h2>
+        <div class="row">
+            <div class="form-group">
+                <div class="col-lg-12">
+                    <label>Motivo da Solicitação</label>
+                    <input id="txtmotivo" type="text" class="form-control" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-lg-12">
+                    <label>Produtos</label>
+                    <input type="hidden" asp-for="ListaProdutos" value="@Model.ListaProdutos" class="form-control" />
+                    <select id="cboProduto" onchange="BuscarCategoriaProduto()" asp-items="@Model.ListaProdutos" class="form-control" input-lg></select>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-lg-12">
+                    <label>Categoria</label>
+                    <input id="txtcategoria" type="text" class="form-control" disabled />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-lg-12">
+                    <label>Tamanho</label>
+                    <input id="txttamanho" type="text" class="form-control" />
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <br />
+            <button type="button" class="btn btn-info" onclick="AdicionarProduto()">Adicionar</button>
+            <br />
+        </div>
+        <br />
+        <div class="form-group">
+            <div class="col">
+                <table class="table table-bordered">
+                    <thead class="thread-inverse">
+                        <tr style="background-color:#f6f6f6;">
+                            <th>Produto</th>
+                            <th>Tamanho</th>
+                            <th>Motivo</th>
+                            <th>Categoria</th>
+                        </tr>
+                    </thead>
+                    <tbody id="gridProdutos"></tbody>
+                </table>
+            </div>
+        </div>
+        <textarea asp-for="JsonProdutos" id="txtJsonProdutos" class="col" style="display:none;"></textarea>
+        <br /><br />
+    </div>
+    <div class="button">
+        <div class="col-lg">
+            <button type="button" class="btn btn-info" onclick="Novo()">Novo</button>
+            <button type="submit" class="btn btn-success">Gravar</button>
+            <button type="button" class="btn btn-warning" onclick="Listagem()">Listagem</button>
+            <button type="button" class="btn btn-danger" onclick="Excluir(@Model.Codigo)" @disabled>Excluir</button>
+        </div>
+    </div>
+</form>
+
+<script>
+
+    var Items = new Object();
+    Items.Produtos = new Array();
+    var gridProdutos = document.getElementById("gridProdutos");
+
+    function AdicionarProduto() {
+        var CodigoProduto = document.getElementById("cboProduto");
+        var Tamanho = document.getElementById("txttamanho");
+        var Motivo = document.getElementById("txtmotivo");
+        var Categoria = document.getElementById("txtcategoria");
+        Items.Produtos.push({
+            "CodigoProduto": CodigoProduto.value,
+            "Tamanho": Tamanho.value,
+            "Motivo": Motivo.value,
+            "Categoria": Categoria.value
+        });
+        document.getElementById("txtJsonProdutos").value = JSON.stringify(Items.Produtos);
+        var linhaGrid = "<tr id=''" + CodigoProduto.value + "'>" +
+        "<td>" + CodigoProduto.options[CodigoProduto.selectedIndex].text + "</td>"+
+        "<td>" + Tamanho.value + "</td>"+
+        "<td>" + Motivo.value + "</td>"+
+        "<td>" + Categoria.value + "</td>" +
+        "</tr>";
+        gridProdutos.innerHTML += linhaGrid;
+        document.getElementById("cboProduto").selectedIndex = -1;
+        document.getElementById("txttamanho").value = "";
+        document.getElementById("txtmotivo").value = "";
+        document.getElementById("txtcategoria").value = "";
+    }
+
+
+      function BuscarCategoriaProduto() {
+        var CodigoProduto = document.getElementById("cboProduto");
+        var url = `/LevarCategoriaProduto/${CodigoProduto.value}`;
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == XMLHttpRequest.DONE) {
+                document.getElementById("txtcategoria").value = xhr.responseText;
+            }
+        }
+        xhr.open('GET', url, false);
+        xhr.send(null);
+      }
+
+    function Novo() {
+        Request("cadastro");
+    }
+
+    function Listagem() {
+        Request("");
+    }
+
+    function Excluir(Codigo) {
+        Request("excluir\\" + Codigo);
+    }
+
+    function Request(request) {
+        window.location = window.origin + "\\Solicitacoes\\" + request;
+    }
+</script>
